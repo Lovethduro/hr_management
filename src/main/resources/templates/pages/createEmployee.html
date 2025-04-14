@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Employee | AutoHR</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2a5c8d;
+      --secondary: #e63946;
+      --accent: #457b9d;
+      --light: #f1faee;
+      --dark: #1d3557;
+      --text: #2b2d42;
+      --gray: #8d99ae;
+      --radius: 8px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: all 0.25s ease;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .admin-container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    /* Admin Toolbar */
+    .admin-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      margin-bottom: 25px;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .toolbar-left {
+      flex: 1;
+    }
+
+    .nav-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 15px;
+      border-radius: var(--radius);
+      transition: var(--transition);
+    }
+
+    .nav-control:hover {
+      background-color: rgba(42, 92, 141, 0.1);
+      transform: translateX(-3px);
+    }
+
+    /* Form Header */
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .form-header h1 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin: 0;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Form Container */
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    /* Form Grid */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* Form Group */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--gray);
+      border-radius: var(--radius);
+      font-size: 15px;
+      transition: var(--transition);
+      background-color: #f9f9f9;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
+    }
+
+    .form-control:read-only {
+      background-color: #e0e0e0;
+      cursor: not-allowed;
+    }
+
+    select.form-control {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232b2d42' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 12px;
+      padding-right: 35px;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border-radius: var(--radius);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border: none;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #6b7280;
+      transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+        gap: 15px;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Status Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-inactive {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+  <div class="admin-toolbar">
+    <div class="toolbar-left">
+      <a href="#" id="backButton" class="nav-control">
+        <i class="fas fa-chevron-left"></i> <span id="consoleName">Console</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="form-header">
+    <h1><i class="fas fa-user-plus"></i> Create New Employee</h1>
+  </div>
+
+  <div class="form-container">
+    <form action="createEmployee" method="POST">
+      <div class="form-grid">
+        <!-- Employee First Name -->
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <input type="text" name="firstName" id="firstName" class="form-control" required>
+        </div>
+
+        <!-- Employee Last Name -->
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <input type="text" name="lastName" id="lastName" class="form-control" required>
+        </div>
+
+        <!-- Employee Phone -->
+        <div class="form-group">
+          <label for="phone">Phone</label>
+          <input type="tel" name="phone" id="phone" class="form-control" required>
+        </div>
+
+        <!-- Employee Email -->
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+
+        <!-- Employee Address -->
+        <div class="form-group">
+          <label for="address">Address</label>
+          <input type="text" name="address" id="address" class="form-control" required>
+        </div>
+
+        <!-- Employee Salary -->
+        <div class="form-group">
+          <label for="salary">Salary</label>
+          <input type="number" name="salary" id="salary" class="form-control" required min="0" step="0.01">
+        </div>
+
+        <!-- Employee Created By (HRM) -->
+        <div class="form-group">
+          <label for="createdBy">Created By</label>
+          <input type="text" name="createdBy" id="createdBy" class="form-control" value="HRM" readonly>
+        </div>
+
+        <!-- Employee Department -->
+        <div class="form-group">
+          <label for="department">Department</label>
+          <select name="department" id="department" class="form-control" required>
+            <option value="">Select Department</option>
+            <option value="Human Resources">Human Resources</option>
+            <option value="Finance">Finance</option>
+            <option value="Sales">Sales</option>
+            <option value="Marketing">Marketing</option>
+            <option value="IT">IT</option>
+            <option value="Operations">Operations</option>
+            <option value="Legal">Legal</option>
+            <option value="R&D">R&D</option>
+            <option value="Customer Support">Customer Support</option>
+          </select>
+        </div>
+
+        <!-- Position (Leadership & Management Roles) -->
+        <div class="form-group">
+          <label for="position">Position</label>
+          <select name="position" id="position" class="form-control" required>
+            <option value="">Select Position</option>
+            <option value="Team Lead">Team Lead</option>
+            <option value="Manager">Manager</option>
+            <option value="Department Head">Department Head</option>
+            <option value="Director">Director</option>
+            <option value="Vice President">Vice President</option>
+          </select>
+        </div>
+
+        <!-- Role (Operational & Functional Roles) -->
+        <div class="form-group">
+          <label for="role">Role</label>
+          <select name="role" id="role" class="form-control" required>
+            <option value="">Select Role</option>
+            <option value="Operations Manager">Operations Manager</option>
+            <option value="Functional Analyst">Functional Analyst</option>
+            <option value="Team Leader">Team Leader</option>
+            <option value="Quality Assurance">Quality Assurance</option>
+            <option value="Logistics Coordinator">Logistics Coordinator</option>
+            <option value="Supply Chain Manager">Supply Chain Manager</option>
+          </select>
+        </div>
+
+        <!-- Qualification (Different Levels of Education) -->
+        <div class="form-group">
+          <label for="qualification">Qualification</label>
+          <select name="qualification" id="qualification" class="form-control" required>
+            <option value="">Select Qualification</option>
+            <option value="High School">High School</option>
+            <option value="Associate's Degree">Associate's Degree</option>
+            <option value="Bachelor's Degree">Bachelor's Degree</option>
+            <option value="Master's Degree">Master's Degree</option>
+            <option value="Ph.D.">Ph.D.</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="#" id="cancelButton" class="btn btn-secondary">
+          <i class="fas fa-times"></i> Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-save"></i> Create Employee
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  // Determine user role (this would normally come from your backend)
+  // For demonstration, we'll check the URL or use a default
+  const isAdmin = window.location.pathname.includes('/admin') || false;
+
+  // Set the appropriate back link and console name
+  document.getElementById('backButton').href = isAdmin ? '/admin' : '/hrm';
+  document.getElementById('cancelButton').href = isAdmin ? '/admin' : '/hrm';
+  document.getElementById('consoleName').textContent = isAdmin ? 'ADMIN Console' : 'HRM Console';
+
+  // If you have actual user role data, you could use that instead
+  // For example, if you set a data attribute on the body:
+  const userRole = document.body.dataset.userRole;
+  if (userRole) {
+    const isAdmin = userRole === 'ADMIN';
+    document.getElementById('backButton').href = isAdmin ? '/admin' : '/hrm';
+    document.getElementById('cancelButton').href = isAdmin ? '/admin' : '/hrm';
+    document.getElementById('consoleName').textContent = isAdmin ? 'ADMIN Console' : 'HRM Console';
+    document.getElementById('createdBy').value = isAdmin ? 'ADMIN' : 'HRM';
+  }
+</script>
+</body>
+</html>

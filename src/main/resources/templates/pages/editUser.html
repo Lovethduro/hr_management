@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit User</title>
+    <style>
+        :root {
+            --primary: #2a5c8d;
+            --secondary: #e63946;
+            --accent: #457b9d;
+            --light: #f1faee;
+            --dark: #1d3557;
+            --text: #2b2d42;
+            --gray: #8d99ae;
+            --radius: 8px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --transition: all 0.25s ease;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        h2 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        form {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--radius);
+            font-size: 15px;
+            background-color: white;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
+        }
+
+        input[type="submit"] {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            transition: var(--transition);
+            width: auto;
+        }
+
+        input[type="submit"]:hover {
+            background-color: var(--dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 25px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 8px;
+            border-radius: var(--radius);
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            background-color: rgba(42, 92, 141, 0.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .form-group {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            form {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<h2>Edit User</h2>
+
+<form th:action="@{/editUser/{id}(id=${user.id})}" th:object="${user}" method="post">
+    <!-- Hidden field for user ID -->
+    <input type="hidden" th:field="*{id}" />
+
+    <div class="form-group">
+        <label for="firstName">First Name:</label>
+        <input type="text" th:field="*{firstName}" id="firstName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="lastName">Last Name:</label>
+        <input type="text" th:field="*{lastName}" id="lastName" required />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" th:field="*{email}" id="email" required />
+    </div>
+
+    <div class="form-group">
+        <label for="username">Username:</label>
+        <input type="text" th:field="*{username}" id="username" required />
+    </div>
+
+    <div class="form-group">
+        <label for="dateOfBirth">Date of Birth:</label>
+        <input type="date" th:field="*{dateOfBirth}" id="dateOfBirth" required />
+    </div>
+
+    <div class="form-group">
+        <label for="role">Role:</label>
+        <input type="text" th:field="*{role}" id="role" required />
+    </div>
+
+    <input type="submit" value="Update User">
+</form>
+
+<!-- Link to go back to the user list page -->
+<a th:href="@{/createUser/display}">Back to User List</a>
+</body>
+</html>

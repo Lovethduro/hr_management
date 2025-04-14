@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup Form</title>
+  <link rel="stylesheet" href="/css/style3.css">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .back-button {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background-color: #f0f0f0;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.3s;
+    }
+
+    .back-button:hover {
+        background-color: #dcdcdc;
+    }
+
+    .error-message {
+        color: red;
+        margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <button type="button" class="back-button" onclick="goBack();">
+    <img src="images/close.png" alt="Back"></button>
+  <form id="signupForm" th:action="@{/register}" method="post" onsubmit="return validateForm();">
+    <h1>Signup</h1>
+    <div class="input-box">
+      <input type="text" name="firstname" placeholder="First Name" required>
+      <i class='bx bxs-user'></i>
+    </div>
+    <div class="input-box">
+      <input type="text" name="lastname" placeholder="Last Name" required>
+      <i class='bx bxs-user'></i>
+    </div>
+    <div class="input-box">
+      <input type="date" name="dob" id="dob" placeholder="Date of Birth" required>
+      <i class='bx bxs-calendar'></i>
+    </div>
+    <div class="input-box">
+      <input type="text" name="username" placeholder="Username" required>
+      <i class='bx bxs-user'></i>
+    </div>
+    <div class="input-box">
+      <input type="email" name="email" placeholder="Email" required>
+      <i class='bx bxs-envelope'></i>
+    </div>
+    <div class="input-box">
+      <input type="password" name="password" placeholder="Password" required>
+      <i class='bx bxs-lock-alt'></i>
+    </div>
+    <div class="input-box">
+      <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+      <i class='bx bxs-lock'></i>
+    </div>
+
+    <div class="input-box">
+      <input type="tel" name="phone" placeholder="Phone Number" required>
+      <i class='bx bxs-phone'></i>
+    </div>
+
+    <div class="error-message">
+      <p id="error-message" style="color: red;"></p>
+      <p id="success-message" style="color: green;"></p>
+    </div>
+
+    <button type="submit" class="btn">Signup</button>
+    <div class="register-link">
+      <p>Already have an account? <a href="login">Login</a></p>
+
+      <p class="legal-text">
+        By creating an account, you agree to our
+        <a href="/privacy-policy.html" target="_blank">Privacy Policy</a>
+        and <a href="/terms.html">Terms</a>.
+      </p>
+    </div>
+  </form>
+</div>
+<script>
+  function validateForm() {
+    // Reset error messages
+    document.getElementById('error-message').textContent = "";
+
+    // Get form fields
+    const firstName = document.querySelector('input[name="firstname"]').value.trim();
+    const lastName = document.querySelector('input[name="lastname"]').value.trim();
+    const email = document.querySelector('input[name="email"]').value.trim();
+    const username = document.querySelector('input[name="username"]').value.trim();
+    const password = document.querySelector('input[name="password"]').value;
+    const confirmPassword = document.querySelector('input[name="confirmPassword"]').value;
+    const phone = document.querySelector('input[name="phone"]').value.trim();
+    const dob = document.querySelector('input[name="dob"]').value;
+
+    // Validate required fields
+    if (!firstName || !lastName || !email || !username || !password || !confirmPassword || !phone || !dob) {
+      document.getElementById('error-message').textContent = "All fields are required.";
+      return false;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      document.getElementById('error-message').textContent = "Please enter a valid email address.";
+      return false;
+    }
+
+    // Validate username length
+    if (username.length < 4 || username.length > 20) {
+      document.getElementById('error-message').textContent = "Username must be between 4 and 20 characters.";
+      return false;
+    }
+
+    // Validate password complexity
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      document.getElementById('error-message').textContent =
+              "Password must be at least 8 characters with uppercase, lowercase, digit and special character.";
+      return false;
+    }
+
+    // Check if passwords match
+    if (password !== confirmPassword) {
+      document.getElementById('error-message').textContent = "Passwords do not match!";
+      return false;
+    }
+
+    // Validate phone number
+    const phoneRegex = /^\d{10,15}$/;
+    if (!phoneRegex.test(phone)) {
+      document.getElementById('error-message').textContent = "Phone number must contain 10-15 digits only.";
+      return false;
+    }
+
+    // Validate date of birth
+    const today = new Date();
+    const birthDate = new Date(dob);
+    const age = today.getFullYear() - birthDate.getFullYear();
+
+    if (isNaN(birthDate.getTime())) {
+      document.getElementById('error-message').textContent = "Please enter a valid date of birth.";
+      return false;
+    }
+
+    if (age < 18) {
+      document.getElementById('error-message').textContext = "You must be at least 18 years old to register.";
+      return false;
+    }
+
+    return true;
+  }
+</script>
+</body>
+</html>

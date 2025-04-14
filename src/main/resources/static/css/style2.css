@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;400;900&family=Racing+Sans+One&family=Ubuntu:wght@300&family=Uchen&display=swap') !important;
+* {
+    margin: 0  !important;
+    padding: 0  !important;
+    box-sizing: border-box  !important;
+    font-family: "Poppins", sans-serif  !important;
+}
+
+body{
+    display: flex  !important;
+    justify-content: center  !important;
+    align-items: center  !important;
+    min-height: 100vh  !important;
+    background: url("/images/mclaren-1.jpg") no-repeat  !important;
+    background-size: cover  !important;
+    background-position: center  !important;
+
+}
+
+.back-button {
+            position: fixed !important;
+            top: 10px !important;
+            left: 20px !important;
+            background-color: #f0f0f0 !important;
+            border: none !important;
+            padding: 8px 12px !important;
+            border-radius: 5px !important;
+            cursor: pointer !important;
+            font-size: 14px !important;
+            transition: background-color 0.3s !important;
+
+        }
+
+.back-button:hover {
+          ackground-color: #dcdcdc !important;
+        }
+
+ .error-message {
+            color: red !important;
+            margin-top: 10px !important;
+            display: none !important;
+        }
+
+.wrapper {
+    width 420px:  !important;
+    background: transparent  !important;
+    border: 2px solid rgba(255, 255, 255, 0.2)  !important;
+    backdrop-filter: blur(20px)  !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2)  !important;
+    color: #ffffff  !important;
+    border-radius: 10px  !important;
+    padding: 30px 40px  !important;
+}
+
+.wrapper .input-box {
+    width: 100%  !important;
+    height: 50px  !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    margin: 30px 0  !important;
+}
+
+.input-box input{
+    width: 100%  !important;
+    height: 100%  !important;
+    background: transparent  !important;
+    border: none  !important;
+    outline: none  !important;
+    border: 2px solid rgba(255, 255, 255, 0.2)  !important;
+    border-radius: 40px  !important;
+    font-size: 16px  !important;
+    color: #ffffff  !important;
+    padding: 20px 45px 20px 20px  !important;
+}
+
+.input-box input::placeholder{
+    color: #ffffff  !important;
+}
+
+.input-box i {
+    position: absolute  !important;
+    right: 20px  !important;
+    top: 50%  !important;
+    transform: translateY(-50%)  !important;
+    font-size: 20px  !important;
+}
+
+.wrapper .remember-forgot {
+    display: flex  !important;
+    justify-content: space-between  !important;
+    font-size: 14.5px  !important;
+    margin: -15px 0 15px  !important;
+}
+
+.remember-forgot label input {
+    accent-color: #ffffff  !important;
+    margin-right: 3px  !important;
+}
+
+.remember-forgot a {
+    color: #ffffff  !important;
+    text-decoration: none  !important;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline  !important;
+}
+
+.wrapper .btn {
+    width: 100%  !important;
+    height: 45px  !important;
+    background: #ffffff  !important;
+    border: none  !important;
+    outline: none  !important;
+    border-radius: 40px  !important;
+    box-shadow: 0 0 10px rgba(0, 0, 0 , 0.1)  !important;
+    cursor: pointer  !important;
+    font-size: 16px !important;
+    color: #333 !important;
+    font-weight: 600 !important;
+}
+
+.wrapper .register-link {
+     font-size: 14.5px !important;
+     text-align: center !important;
+     margin: 20px 0 15px !important;
+}
+
+.register-link p a {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}
+
+.register-link p a:hover {
+    text-decoration: underline !important;
+}
+
+}
+
+

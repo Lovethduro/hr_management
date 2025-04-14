@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete User Confirmation</title>
+    <!-- Include your CSS here -->
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h3>Delete User Confirmation</h3>
+        </div>
+        <div class="card-body">
+            <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+                <span th:text="${errorMessage}"></span>
+            </div>
+
+            <p>Are you sure you want to delete the following user?</p>
+
+            <div class="user-details">
+                <p><strong>ID:</strong> <span th:text="${user.id}"></span></p>
+                <p><strong>Name:</strong> <span th:text="${user.firstName + ' ' + user.lastName}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+                <!-- Add more user details as needed -->
+            </div>
+
+            <div class="alert alert-warning" role="alert">
+                Warning: This action cannot be undone!
+            </div>
+
+            <form th:action="@{/user/delete/{id}(id=${user.id})}" method="post">
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-danger">Delete User</button>
+                    <a th:href="@{/users}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

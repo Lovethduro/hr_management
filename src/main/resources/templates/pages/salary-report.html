@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salary Analysis - AutoHR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link th:href="@{/css/styles.css}" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .report-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .report-header .actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .report-section {
+        background: white;
+        border-radius: var(--radius);
+        padding: 1.5rem;
+        box-shadow: var(--shadow);
+        margin-bottom: 1.5rem;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .stat-box {
+        background: #f8f9fa;
+        border-radius: var(--radius);
+        padding: 1.25rem;
+        text-align: center;
+        border-bottom: 3px solid var(--primary);
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .chart-container {
+        height: 300px;
+        margin: 1.5rem 0;
+    }
+
+    .salary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.5rem 0;
+    }
+
+    .salary-table th,
+    .salary-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .salary-table th {
+        background-color: var(--light);
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .salary-table tr:nth-child(even) {
+        background-color: #f8f9fa;
+    }
+
+    .salary-table tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .timestamp {
+        font-size: 0.8rem;
+        color: var(--gray);
+        text-align: right;
+        margin-top: 1rem;
+    }
+
+    @media print {
+        .header, .menu, .no-print {
+            display: none !important;
+        }
+
+        body {
+            background: white;
+        }
+
+        .content {
+            padding: 0;
+            max-width: 100%;
+        }
+
+        .report-section {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">Auto<span>HR</span></div>
+  <div class="admin-info">
+    <div class="admin-picture">
+      <img th:src="@{/profile-image}" alt="Profile Picture"/>
+    </div>
+    <p id="admin-name" th:text="${adminFirstName + ' ' + adminLastName}"></p>
+    <div class="logout-button">
+      <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="menu">
+  <span class="menu-item" onclick="window.location.href='/admin'">Dashboard</span>
+  <span class="menu-item" onclick="window.location.href='/admin/employees'">Employees</span>
+  <span class="menu-item" onclick="window.location.href='/admin/clients'">Clients</span>
+  <span class="menu-item" onclick="window.location.href='/admin/departments'">Departments</span>
+  <span class="menu-item" onclick="window.location.href='/admin/reports'">Reports</span>
+</div>
+
+<div class="content">
+  <div class="report-header">
+    <h1>Salary Analysis Report</h1>
+    <div class="actions no-print">
+      <button class="btn" onclick="window.print()">Print Report</button>
+      <button class="btn" onclick="exportToPDF()">Export PDF</button>
+      <button class="btn" onclick="exportToExcel()">Export Excel</button>
+    </div>
+  </div>
+
+  <div class="report-section">
+    <h2>Overall Salary Statistics</h2>
+    <div class="stats-container" id="overallStats">
+      <!-- Overall salary stats will be dynamically populated here -->
+    </div>
+  </div>
+
+  <div class="report-section">
+    <h2>Salary Distribution by Department</h2>
+    <div class="chart-container">
+      <canvas id="departmentSalaryChart"></canvas>
+    </div>
+
+    <h3>Department Salary Details</h3>
+    <table class="salary-table" id="departmentSalaryTable">
+      <thead>
+      <tr>
+        <th>Department</th>
+        <th>Average Salary</th>
+        <th>Minimum Salary</th>
+        <th>Maximum Salary</th>
+        <th>Total Payroll</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Department salary details will be dynamically populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="report-section">
+    <h2>Salary Distribution by Role</h2>
+    <div class="chart-container">
+      <canvas id="roleSalaryChart"></canvas>
+    </div>
+
+    <h3>Role Salary Details</h3>
+    <table class="salary-table" id="roleSalaryTable">
+      <thead>
+      <tr>
+        <th>Role</th>
+        <th>Average Salary</th>
+        <th>Minimum Salary</th>
+        <th>Maximum Salary</th>
+      </tr>
+      </thead>
+      <tbody>
+      <!-- Role salary details will be dynamically populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <div class="timestamp" id="timestamp">
+    Report generated: Loading...
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      loadSalaryReportData();
+  });
+
+  async function loadSalaryReportData() {
+      try {
+          const response = await fetch('/api/reports/salary');
+          if (response.ok) {
+              const data = await response.json();
+              renderSalaryReport(data);
+          } else {
+              console.error('Failed to load salary report data');
+          }
+      } catch (error) {
+          console.error('Error loading salary report data:', error);
+      }
+  }
+
+  function renderSalaryReport(data) {
+      // Set timestamp
+      document.getElementById('timestamp').textContent = 'Report generated: ' +
+          new Date(data.generatedAt).toLocaleString();
+
+      // Render overall stats
+      const overallStats = data.overallSalaryStats;
+      const statsContainer = document.getElementById('overallStats');
+
+      statsContainer.innerHTML = `
+          <div class="stat-box">
+              <div class="stat-label">Average Salary</div>
+              <div class="stat-value">$${formatMoney(overallStats.average)}</div>
+          </div>
+          <div class="stat-box">
+              <div class="stat-label">Minimum Salary</div>
+              <div class="stat-value">$${formatMoney(overallStats.min)}</div>
+          </div>
+          <div class="stat-box">
+              <div class="stat-label">Maximum Salary</div>
+              <div class="stat-value">$${formatMoney(overallStats.max)}</div>
+          </div>
+          <div class="stat-box">
+              <div class="stat-label">Total Payroll</div>
+              <div class="stat-value">$${formatMoney(overallStats.total)}</div>
+          </div>
+      `;
+
+      // Render department salary table
+      const deptSalaries = data.departmentSalaries;
+      const deptTable = document.getElementById('departmentSalaryTable').querySelector('tbody');
+
+      let deptTableHTML = '';
+      for (const [dept, salaryData] of Object.entries(deptSalaries)) {
+          deptTableHTML += `
+              <tr>
+                  <td>${dept}</td>
+                  <td>$${formatMoney(salaryData.average)}</td>
+                  <td>$${formatMoney(salaryData.min)}</td>
+                  <td>$${formatMoney(salaryData.max)}</td>
+                  <td>$${formatMoney(salaryData.total)}</td>
+              </tr>
+          `;
+      }
+
+      deptTable.innerHTML = deptTableHTML;
+
+      // Render role salary table
+      const roleSalaries = data.roleSalaries;
+      const roleTable = document.getElementById('roleSalaryTable').querySelector('tbody');
+
+      let roleTableHTML = '';
+      for (const [role, salaryData] of Object.entries(roleSalaries)) {
+          roleTableHTML += `
+              <tr>
+                  <td>${role}</td>
+                  <td>$${formatMoney(salaryData.average)}</td>
+                  <td>$${formatMoney(salaryData.min)}</td>
+                  <td>$${formatMoney(salaryData.max)}</td>
+              </tr>
+          `;
+      }
+
+      roleTable.innerHTML = roleTableHTML;
+
+      // Create department salary chart
+      const deptLabels = Object.keys(deptSalaries);
+      const deptAverageSalaries = deptLabels.map(dept => deptSalaries[dept].average);
+      const deptMinSalaries = deptLabels.map(dept => deptSalaries[dept].min);
+      const deptMaxSalaries = deptLabels.map(dept => deptSalaries[dept].max);
+
+      const deptSalaryCtx = document.getElementById('departmentSalaryChart').getContext('2d');
+      new Chart(deptSalaryCtx, {
+          type: 'bar',
+          data: {
+              labels: deptLabels,
+              datasets: [
+                  {
+                      label: 'Average Salary',
+                      data: deptAverageSalaries,
+                      backgroundColor: '#457b9d',
+                      borderColor: '#2a5c8d',
+                      borderWidth: 1
+                  },
+                  {
+                      label: 'Minimum Salary',
+                      data: deptMinSalaries,
+                      backgroundColor: '#8d99ae',
+                      borderColor: '#6c757d',
+                      borderWidth: 1
+                  },
+                  {
+                      label: 'Maximum Salary',
+                      data: deptMaxSalaries,
+                      backgroundColor: '#e63946',
+                      borderColor: '#c1121f',
+                      borderWidth: 1
+                  }
+              ]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Salary Ranges by Department',
+                      font: {
+                          size: 16
+                      }
+                  }
+              },
+              scales: {
+                  y: {
+                      beginAtZero: true,
+                      title: {
+                          display: true,
+                          text: 'Salary ($)'
+                      }
+                  },
+                  x: {
+                      title: {
+                          display: true,
+                          text: 'Department'
+                      }
+                  }
+              }
+          }
+      });
+
+      // Create role salary chart
+      const roleLabels = Object.keys(roleSalaries);
+      const roleAverageSalaries = roleLabels.map(role => roleSalaries[role].average);
+
+      const roleSalaryCtx = document.getElementById('roleSalaryChart').getContext('2d');
+      new Chart(roleSalaryCtx, {
+          type: 'horizontalBar',
+          data: {
+              labels: roleLabels,
+              datasets: [{
+                  label: 'Average Salary',
+                  data: roleAverageSalaries,
+                  backgroundColor: '#457b9d',
+                  borderColor: '#2a5c8d',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                  title: {
+                      display: true,
+                      text: 'Average Salary by Role',
+                      font: {
+                          size: 16
+                      }
+                  },
+                  legend: {
+                      display: false
+                  }
+              },
+              scales: {
+                  x: {
+                      beginAtZero: true,
+                      title: {
+                          display: true,
+                          text: 'Salary ($)'
+                      }
+                  }
+              }
+          }
+      });
+  }
+
+  // Helper functions
+  function formatMoney(amount) {
+      return amount.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+      });
+  }
+
+  // Export functions
+  function exportToPDF() {
+      alert('Exporting to PDF... This functionality requires backend implementation.');
+      // Implement PDF export functionality
+  }
+
+  function exportToExcel() {
+      alert('Exporting to Excel... This functionality requires backend implementation.');
+      // Implement Excel export functionality
+  }
+</script>
+</body>
+</html>

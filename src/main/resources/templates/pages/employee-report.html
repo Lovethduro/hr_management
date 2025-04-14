@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Report - AutoHR</title>
+    <!-- Include your CSS here -->
+
+    <!-- Add Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Add date formatting library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <!-- Include your header here -->
+</div>
+
+<div class="content" id="report-content">
+    <div class="report-header">
+        <div class="toolbar-left">
+            <a th:href="@{/admin}" class="nav-control">
+                <i class="fas fa-chevron-left"></i> ADMIN Console
+            </a>
+        </div>
+        <div class="report-title">
+            <h1>Employee Report</h1>
+            <p>Generated on <span id="report-date"></span></p>
+        </div>
+        <div class="report-actions">
+            <button class="btn" onclick="refreshReport()">Refresh Data</button>
+            <button class="btn" onclick="printReport()">Print Report</button>
+            <button class="btn" onclick="downloadCSV()">Export to CSV</button>
+        </div>
+    </div>
+
+    <div class="loading" id="loading-indicator">
+        <div class="spinner"></div>
+        <p>Loading report data...</p>
+    </div>
+
+    <div id="report-container" style="display: none;">
+        <div class="report-summary">
+            <div class="report-stat">
+                <div class="report-stat-value" id="total-employees">-</div>
+                <div class="report-stat-label">Total Employees</div>
+            </div>
+            <div class="report-stat">
+                <div class="report-stat-value" id="departments-count">-</div>
+                <div class="report-stat-label">Departments</div>
+            </div>
+            <div class="report-stat">
+                <div class="report-stat-value" id="roles-count">-</div>
+                <div class="report-stat-label">Roles</div>
+            </div>
+        </div>
+
+        <div class="report-filters">
+            <h3>Filter Report</h3>
+            <div class="filter-controls">
+                <label>
+                    Department:
+                    <select id="department-filter" onchange="filterByDepartment()">
+                        <option value="all">All Departments</option>
+                        <!-- Departments will be populated dynamically -->
+                    </select>
+                </label>
+            </div>
+        </div>
+
+        <div class="report-chart-container">
+            <div class="report-chart">
+                <h3>Department Distribution</h3>
+                <canvas id="department-chart"></canvas>
+            </div>
+            <div class="report-chart">
+                <h3>Role Distribution</h3>
+                <canvas id="role-chart"></canvas>
+            </div>
+        </div>
+
+        <h2>Department Details</h2>
+        <table class="report-table" id="department-table">
+            <thead>
+            <tr>
+                <th>Department</th>
+                <th>Employees</th>
+                <th>Percentage</th>
+                <th>Avg. Salary</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Table body will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    <!-- Include your footer here -->
+</div>
+
+<script>
+    // Global variables for charts
+    let departmentChart = null;
+    let roleChart = null;
+    let reportData = null;
+
+    // Initialize report on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadReportData();
+    });
+
+    // Load report data via API
+    async function loadReportData() {
+        document.getElementById('loading-indicator').style.display = 'flex';
+        document.getElementById('report-container').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/reports/employee');
+            if (!response.ok) {
+                throw new Error('Failed to load report data');
+            }
+
+            reportData = await response.json();
+            renderReport(reportData);
+
+            document.getElementById('loading-indicator').style.display = 'none';
+            document.getElementById('report-container').style.display = 'block';
+        } catch (error) {
+            console.error('Error loading report data:', error);
+            alert('Failed to load report data. Please try again.');
+            document.getElementById('loading-indicator').style.display = 'none';
+        }
+    }
+
+    // Render the report with data
+    function renderReport(data) {
+        // Update report timestamp
+        const reportDate = new Date(data.generatedAt);
+        document.getElementById('report-date').textContent =
+            moment(reportDate).format('MMMM D, YYYY [at] h:mm A');
+
+        // Update summary stats
+        document.getElementById('total-employees').textContent = data.totalEmployees;
+        document.getElementById('departments-count').textContent =
+            Object.keys(data.departmentDistribution).length;
+        document.getElementById('roles-count').textContent =
+            Object.keys(data.roleDistribution).length;
+
+        // Populate department filter
+        const departmentFilter = document.getElementById('department-filter');
+        departmentFilter.innerHTML = '<option value="all">All Departments</option>';
+
+        Object.keys(data.departmentDistribution).sort().forEach(dept => {
+            const option = document.createElement('option');
+            option.value = dept;
+            option.textContent = dept;
+            departmentFilter.appendChild(option);
+        });
+
+        // Render charts
+        renderDepartmentChart(data.departmentDistribution);
+        renderRoleChart(data.roleDistribution);
+
+        // Render department table
+        renderDepartmentTable(data);
+    }
+
+    // Render department distribution chart
+    function renderDepartmentChart(departmentData) {
+        const ctx = document.getElementById('department-chart').getContext('2d');
+
+        // Destroy existing chart if it exists
+        if (departmentChart) {
+            departmentChart.destroy();
+        }
+
+        const departments = Object.keys(departmentData);
+        const counts = Object.values(departmentData);
+
+        departmentChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: departments,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: [
+                        '#2a5c8d',
+                        '#457b9d',
+                        '#e63946',
+                        '#1d3557',
+                        '#8d99ae',
+                        '#a8dadc'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Render role distribution chart
+    function renderRoleChart(roleData) {
+        const ctx = document.getElementById('role-chart').getContext('2d');
+
+        // Destroy existing chart if it exists
+        if (roleChart) {
+            roleChart.destroy();
+        }
+
+        const roles = Object.keys(roleData);
+        const counts = Object.values(roleData);
+
+        roleChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: roles,
+                datasets: [{
+                    label: 'Employees by Role',
+                    data: counts,
+                    backgroundColor: '#457b9d'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Render department details table
+    function renderDepartmentTable(data) {
+        const tbody = document.getElementById('department-table').querySelector('tbody');
+        tbody.innerHTML = '';
+
+        const departments = Object.keys(data.departmentDistribution).sort();
+        const totalEmployees = data.totalEmployees;
+
+        departments.forEach(dept => {
+            const row = document.createElement('tr');
+
+            const deptCount = data.departmentDistribution[dept];
+            const percentage = (deptCount / totalEmployees) * 100;
+
+            // Get average salary for department
+            let avgSalary = 'N/A';
+            if (data.departmentSalaries && data.departmentSalaries[dept]) {
+                avgSalary = '$' + data.departmentSalaries[dept].average.toFixed(2);
+            }
+
+            row.innerHTML = `
+                <td>${dept}</td>
+                <td>${deptCount}</td>
+                <td>${percentage.toFixed(2)}%</td>
+                <td>${avgSalary}</td>
+            `;
+
+            tbody.appendChild(row);
+        });
+    }
+
+    // Filter by department
+    function filterByDepartment() {
+        const selectedDept = document.getElementById('department-filter').value;
+
+        if (selectedDept === 'all') {
+            // Show all data
+            renderDepartmentChart(reportData.departmentDistribution);
+            renderRoleChart(reportData.roleDistribution);
+            renderDepartmentTable(reportData);
+        } else {
+            // Filter data for selected department
+            const filteredDeptData = {};
+            filteredDeptData[selectedDept] = reportData.departmentDistribution[selectedDept];
+
+            // We'd need employee-level data to properly filter roles by department
+            // For now, just show department chart with only the selected department
+            renderDepartmentChart(filteredDeptData);
+
+            // Filter table to show only the selected department
+            const tbody = document.getElementById('department-table').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            const deptCount = reportData.departmentDistribution[selectedDept];
+            const percentage = (deptCount / reportData.totalEmployees) * 100;
+
+            let avgSalary = 'N/A';
+            if (reportData.departmentSalaries && reportData.departmentSalaries[selectedDept]) {
+                avgSalary = '$' + reportData.departmentSalaries[selectedDept].average.toFixed(2);
+            }
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${selectedDept}</td>
+                <td>${deptCount}</td>
+                <td>${percentage.toFixed(2)}%</td>
+                <td>${avgSalary}</td>
+            `;
+
+            tbody.appendChild(row);
+        }
+    }
+
+    // Refresh report data
+    function refreshReport() {
+        loadReportData();
+    }
+
+    // Print report
+    function printReport() {
+        window.print();
+    }
+
+    // Export to CSV
+    function downloadCSV() {
+        if (!reportData) return;
+
+        let csvContent = "Department,Employees,Percentage,Average Salary\n";
+
+        const departments = Object.keys(reportData.departmentDistribution).sort();
+        const totalEmployees = reportData.totalEmployees;
+
+        departments.forEach(dept => {
+            const count = reportData.departmentDistribution[dept];
+            const percentage = ((count / totalEmployees) * 100).toFixed(2);
+
+            let avgSalary = 'N/A';
+            if (reportData.departmentSalaries && reportData.departmentSalaries[dept]) {
+                avgSalary = reportData.departmentSalaries[dept].average.toFixed(2);
+            }
+
+            csvContent += `"${dept}",${count},${percentage}%,${avgSalary}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "employee_report.csv");
+        link.style.visibility = 'hidden';
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+<style>
+    /* Base variables and reset */
+  :root {
+      --primary: #1a5fb4;
+      --primary-light: #3584e4;
+      --primary-dark: #15437e;
+      --secondary: #2ec27e;
+      --accent: #e66100;
+      --text: #333333;
+      --text-light: #666666;
+      --background: #f6f8fa;
+      --light: #e9ecef;
+      --light-border: #dee2e6;
+      --white: #ffffff;
+      --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --radius: 6px;
+      --radius-lg: 8px;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --transition: all 0.2s ease-in-out;
+  }
+
+  body {
+      font-family: var(--font-main);
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+      padding: 0;
+  }
+
+  .content {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      color: var(--primary-dark);
+      margin-top: 0;
+      font-weight: 600;
+      line-height: 1.3;
+  }
+
+  h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+  }
+
+  h2 {
+      font-size: 1.5rem;
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--light-border);
+  }
+
+  h3 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+  }
+
+  /* Button styles */
+  .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      background-color: var(--primary);
+      color: var(--white);
+      border: none;
+      border-radius: var(--radius);
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn:hover {
+      background-color: var(--primary-dark);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  }
+
+  .btn:active {
+      transform: translateY(1px);
+  }
+
+  /* Report page styles */
+  .reports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+  }
+
+  .report-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 220px;
+      transition: var(--transition);
+      border: 1px solid var(--light-border);
+  }
+
+  .report-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+  }
+
+  .report-card h3 {
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+  }
+
+  .report-card .btn {
+      margin-top: auto;
+      align-self: flex-start;
+  }
+
+  /* Report content styles */
+  .report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+  }
+
+  .report-title p {
+      color: var(--text-light);
+      margin: 0;
+      font-size: 0.9rem;
+  }
+
+  .report-actions {
+      display: flex;
+      gap: 0.75rem;
+  }
+
+  .report-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+  }
+
+  .report-stat {
+      background: var(--white);
+      padding: 1.75rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      text-align: center;
+      border: 1px solid var(--light-border);
+      transition: var(--transition);
+  }
+
+  .report-stat:hover {
+      box-shadow: var(--shadow-lg);
+  }
+
+  .report-stat-value {
+      font-size: 2.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.1;
+  }
+
+  .report-stat-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-light);
+  }
+
+  .report-filters {
+      background: var(--white);
+      padding: 1.5rem 1.75rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--light-border);
+  }
+
+  .report-filters h3 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+  }
+
+  .filter-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 0.75rem;
+  }
+
+  .filter-controls label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-light);
+  }
+
+  .filter-controls select,
+  .filter-controls input {
+      padding: 0.625rem 0.75rem;
+      border: 1px solid var(--light-border);
+      border-radius: var(--radius);
+      min-width: 220px;
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      color: var(--text);
+      background-color: var(--white);
+      transition: var(--transition);
+  }
+
+  .filter-controls select:focus,
+  .filter-controls input:focus {
+      outline: none;
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(53, 132, 228, 0.15);
+  }
+
+  .report-chart-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 1.75rem;
+      margin-bottom: 2.5rem;
+  }
+
+  .report-chart {
+      background: var(--white);
+      padding: 1.5rem 1.75rem 1.75rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--light-border);
+  }
+
+  .report-chart h3 {
+      margin-top: 0;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--light-border);
+      font-size: 1.1rem;
+  }
+
+  .report-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-bottom: 2.5rem;
+      background: var(--white);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--light-border);
+  }
+
+  .report-table th,
+  .report-table td {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--light-border);
+      text-align: left;
+  }
+
+  .report-table th {
+      background-color: var(--light);
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-size: 0.95rem;
+  }
+
+  .report-table td {
+      font-size: 0.95rem;
+  }
+
+  .report-table tr:last-child td {
+      border-bottom: none;
+  }
+
+  .report-table tr:hover td {
+      background-color: rgba(53, 132, 228, 0.05);
+  }
+
+  .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 0;
+      color: var(--text-light);
+  }
+
+  .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(26, 95, 180, 0.15);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+      margin-bottom: 1.25rem;
+  }
+
+  .loading p {
+      font-size: 1rem;
+      font-weight: 500;
+  }
+
+  @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+      .report-header {
+          flex-direction: column;
+          align-items: flex-start;
+      }
+
+      .report-chart-container {
+          grid-template-columns: 1fr;
+      }
+
+      .report-table {
+          font-size: 0.9rem;
+      }
+
+      .report-table th,
+      .report-table td {
+          padding: 0.75rem 1rem;
+      }
+  }
+
+  /* Print styles */
+  @media print {
+      body {
+          background: white;
+          font-size: 11pt;
+      }
+
+      .header, .footer, .report-actions, .report-filters {
+          display: none;
+      }
+
+      .content {
+          margin: 0;
+          padding: 0;
+          max-width: 100%;
+          box-shadow: none;
+      }
+
+      .report-chart-container {
+          grid-template-columns: 1fr;
+          page-break-inside: avoid;
+      }
+
+      .report-summary {
+          grid-template-columns: repeat(3, 1fr);
+      }
+
+      .report-chart, .report-stat, .report-table {
+          box-shadow: none;
+          border: 1px solid #ddd;
+      }
+
+      h1 {
+          font-size: 18pt;
+      }
+
+      h2 {
+          font-size: 16pt;
+      }
+
+      h3 {
+          font-size: 14pt;
+      }
+
+      .report-title p {
+          font-size: 10pt;
+      }
+
+      /* Add page breaks to improve print layout */
+      h2 {
+          page-break-before: always;
+          margin-top: 1cm;
+      }
+
+      .report-table {
+          page-break-inside: avoid;
+      }
+  }
+</style>
+</body>
+</html>

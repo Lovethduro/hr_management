@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoHR Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            padding: 15px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .logo span {
+            color: #3498db;
+        }
+
+        .hrm-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .hrm-picture {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .hrm-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .logout-button button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button button:hover {
+            background-color: #c0392b;
+        }
+
+        .menu {
+            display: flex;
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        .menu-item {
+            padding: 15px 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #3498db;
+            color: white;
+        }
+
+
+        .menu-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #3498db;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover::after {
+            transform: scaleX(1);
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 30px;
+        }
+
+        .content-section.hidden {
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2ecc71;
+        }
+
+        .btn-secondary {
+            background-color: #3498db;
+        }
+
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+
+        .department-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .department-table th,
+        .department-table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .department-table th {
+            background-color: #f4f7fa;
+            color: #2c3e50;
+        }
+
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: #27ae60;
+        }
+
+        .copyright {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">Auto<span>HR</span></div>
+    <div class="hrm-info">
+        <div class="hrm-picture">
+            <!-- Use the Base64 encoded image if available -->
+            <img th:if="${hrmImage != null}" th:src="@{'data:image/jpeg;base64,' + ${hrmImage}}" alt="Profile Picture"/>
+            <!-- Use a default image if no profile image is available -->
+            <img th:unless="${hrmImage != null}" src="/images/default-profile.jpg" alt="Profile Picture"/>
+        </div>
+        <p id="hrm-name" th:text="${hrmFirstName + ' ' + hrmLastName}">HR Manager</p>
+        <div class="logout-button">
+            <form action="/perform_logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="menu">
+    <span class="menu-item active" onclick="showSection('home-section', event)">Home</span>
+    <span class="menu-item" onclick="showSection('employees-section', event)">Employees</span>
+    <span class="menu-item" onclick="showSection('reports-section', event)">Reports</span>
+</div>
+
+<div class="content">
+    <!-- Home Section -->
+    <div id="home-section" class="content-section">
+        <h1 id="welcome-heading" th:text="'Welcome, ' + ${hrmFirstName}"></h1>
+        <p>Welcome to AutoHR Dashboard</p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value"><span th:text="${totalEmployees}">0</span></div>
+                <div class="stat-label">Total Employees</div>
+            </div>
+
+            <div class="stat-card" th:each="dept : ${departmentCounts}">
+                <div class="stat-value" th:text="${dept.value}">0</div>
+                <div class="stat-label" th:text="${dept.key + ' Department'}">Department</div>
+            </div>
+
+        </div>
+
+        <h2>Quick Actions</h2>
+        <button class="btn" onclick="window.location.href='/createEmployee'">Add Employee</button>
+        <button class="btn btn-secondary" onclick="window.location.href='displayEmployee'">View Employees</button>
+    </div>
+
+    <!-- Employees Section -->
+    <div id="employees-section" class="content-section hidden">
+        <h2>Employee Department Breakdown</h2>
+        <table class="department-table">
+            <thead>
+            <tr>
+                <th>Department</th>
+                <th>Number of Employees</th>
+            </tr>
+            </thead>
+            <tbody>
+                 <tr th:each="dept : ${departmentCounts}">
+                        <td th:text="${dept.key}">Department</td>
+                        <td th:text="${dept.value}">0</td>
+                 </tr>
+            </tbody>
+        </table>
+
+        <button class="btn" onclick="window.location.href='displayEmployee'">View All Employees</button>
+        <button class="btn" onclick="window.location.href='/createEmployee'">Add New Employee</button>
+    </div>
+
+    <!-- Reports Section -->
+    <div id="reports-section" class="content-section hidden">
+        <h1>Reports</h1>
+        <p>Generate and view various reports for your organization.</p>
+
+        <div class="reports-grid">
+            <div class="report-card">
+                <h3>Employee Report</h3>
+                <p>View comprehensive employee statistics, department distribution, and role analysis.</p>
+                <button class="btn" onclick="window.location.href='/hrm/reports/employee'">Generate Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="footer">
+    <div class="footer-content">
+        <div class="footer-links">
+            <div class="footer-links">
+                <a href="/privacyPolicy" class="footer-link">Privacy Policy</a>
+                <a href="/terms" class="footer-link">Terms of Service</a>
+                <a href="/contact" class="footer-link">Contact Support</a>
+                <a href="/about" class="footer-link">About AutoHR</a>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 AutoHR Dashboard. All rights reserved.
+        </div>
+    </div>
+</div>
+
+<script>
+    function showSection(sectionId, event) {
+        // Remove active class from all menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+
+        // Add active class to clicked menu item
+        event.target.classList.add('active');
+
+        // Hide all sections
+        document.querySelectorAll('.content-section').forEach(section => {
+            section.classList.add('hidden');
+        });
+
+        // Show the selected section
+        document.getElementById(sectionId).classList.remove('hidden');
+    }
+</script>
+</body>
+</html>

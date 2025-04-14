@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Report - AutoHR</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .report-header .actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .report-section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .department-card {
+            background: #f8f9fa;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .department-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .department-card .count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid #e5e5e5;
+            padding-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .chart-container {
+            height: 300px;
+            margin: 1.5rem 0;
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-align: right;
+            margin-top: 1rem;
+        }
+
+        @media print {
+            .header, .menu, .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: white;
+            }
+
+            .content {
+                padding: 0;
+                max-width: 100%;
+            }
+
+            .report-section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="logo">Auto<span>HR</span></div>
+    <div class="admin-info">
+        <div class="admin-picture">
+            <img th:src="@{/profile-image}" alt="Profile Picture"/>
+        </div>
+        <p id="admin-name" th:text="${adminFirstName + ' ' + adminLastName}"></p>
+        <div class="logout-button">
+            <form action="/logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="menu">
+    <span class="menu-item" onclick="window.location.href='/admin'">Dashboard</span>
+    <span class="menu-item" onclick="window.location.href='/admin/employees'">Employees</span>
+    <span class="menu-item" onclick="window.location.href='/admin/clients'">Clients</span>
+    <span class="menu-item" onclick="window.location.href='/admin/departments'">Departments</span>
+    <span class="menu-item" onclick="window.location.href='/admin/reports'">Reports</span>
+</div>
+
+<div class="content">
+    <div class="report-header">
+        <h1>Department Report</h1>
+        <div class="actions no-print">
+            <button class="btn" onclick="window.print()">Print Report</button>
+            <button class="btn" onclick="exportToPDF()">Export PDF</button>
+            <button class="btn" onclick="exportToExcel()">Export Excel</button>
+        </div>
+    </div>
+
+    <div class="report-section">
+        <h2>Department Overview</h2>
+        <div class="chart-container">
+            <canvas id="departmentChart"></canvas>
+        </div>
+    </div>
+
+    <div class="report-section">
+        <h2>Department Details</h2>
+        <div class="department-grid" id="departmentDetails">
+            <!-- Department cards will be dynamically populated here -->
+        </div>
+    </div>
+
+    <div class="report-section">
+        <h2>Department Performance</h2>
+        <div class="chart-container">
+            <canvas id="salaryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="timestamp" id="timestamp">
+        Report generated: Loading...
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadDepartmentReportData();
+    });
+
+    async function loadDepartmentReportData() {
+        try {
+            const response = await fetch('/api/reports/department');
+            if (response.ok) {
+                const data = await response.json();
+                renderDepartmentReport(data);
+            } else {
+                console.error('Failed to load department report data');
+            }
+        } catch (error) {
+            console.error('Error loading department report data:', error);
+        }
+    }
+
+    function renderDepartmentReport(data) {
+        // Set timestamp
+        document.getElementById('timestamp').textContent = 'Report generated: ' +
+            new Date(data.generatedAt).toLocaleString();
+
+        // Render department details
+        const departmentDetails = data.departmentDetails;
+        const detailsContainer = document.getElementById('departmentDetails');
+
+        let detailsHTML = '';
+        for (const [dept, details] of Object.entries(departmentDetails)) {
+            detailsHTML += `
+                <div class="department-card">
+                    <h3>${dept} <span class="count">${details.employeeCount}</span></h3>
+                    <div class="stat-line">
+                        <span class="stat-label">Average Salary:</span>
+                        <span class="stat-value">$${details.averageSalary.toLocaleString(undefined, {maximumFractionDigits: 2})}</span>
+                    </div>
+                    <h4>Role Distribution:</h4>
+                    <div class="roles-list">
+            `;
+
+            for (const [role, count] of Object.entries(details.roles)) {
+                detailsHTML += `
+                    <div class="stat-line">
+                        <span class="stat-label">${role}:</span>
+                        <span class="stat-value">${count}</span>
+                    </div>
+                `;
+            }
+
+            detailsHTML += `
+                    </div>
+                </div>
+            `;
+        }
+
+        detailsContainer.innerHTML = detailsHTML;
+
+        // Create department distribution chart
+        const deptLabels = Object.keys(departmentDetails);
+        const deptCounts = deptLabels.map(dept => departmentDetails[dept].employeeCount);
+
+        const ctx = document.getElementById('departmentChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    label: 'Employee Count',
+                    data: deptCounts,
+                    backgroundColor: '#457b9d',
+                    borderColor: '#2a5c8d',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Department Size Distribution',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Number of Employees'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Department'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Create salary comparison chart
+        const deptSalaries = deptLabels.map(dept => departmentDetails[dept].averageSalary);
+
+        const salaryCtx = document.getElementById('salaryChart').getContext('2d');
+        new Chart(salaryCtx, {
+            type: 'bar',
+            data: {
+                labels: deptLabels,
+                datasets: [{
+                    label: 'Average Salary',
+                    data: deptSalaries,
+                    backgroundColor: '#e63946',
+                    borderColor: '#c1121f',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Department Average Salary Comparison',
+                        font: {
+                            size: 16
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Average Salary ($)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Department'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Export functions
+    function exportToPDF() {
+        alert('Exporting to PDF... This functionality requires backend implementation.');
+        // Implement PDF export functionality - can use libraries like jsPDF
+    }
+
+    function exportToExcel() {
+        alert('Exporting to Excel... This functionality requires backend implementation.');
+        // Implement Excel export functionality - can use libraries like xlsx
+    }
+</script>
+</body>
+</html>
