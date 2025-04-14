@@ -1,10 +1,429 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | AutoHR</title>
+    <style>
+        :root {
+            --primary: #2a5c8d;
+            --primary-light: #457b9d;
+            --secondary: #e63946;
+            --text: #333333;
+            --text-light: #555555;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+            --white: #ffffff;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+            --error: #dc3545;
+            --success: #28a745;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 0;
+        }
+
+        .contact-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 40px;
+            background: var(--white);
+            box-shadow: var(--box-shadow);
+            border-radius: 8px;
+        }
+
+        header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-top: 40px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+
+        .btn.back {
+            background: var(--dark-gray);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Contact Form Styles */
+        .contact-form-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .contact-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .contact-form {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .info-item {
+            margin-bottom: 20px;
+        }
+
+        .info-item h3 {
+            color: var(--primary-light);
+            margin-bottom: 5px;
+        }
+
+        .info-item p {
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(69, 123, 157, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .error-message {
+            color: var(--error);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: var(--success);
+            color: white;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        /* Map Styles */
+        .map-container {
+            margin-top: 40px;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--medium-gray);
+        }
+
+        .map-placeholder {
+            background-color: var(--light-gray);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        /* Navigation Styles */
+        .nav-links {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer Style */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .contact-container {
+                padding: 20px;
+                margin: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                margin-bottom: 20px;
+            }
+
+            .nav-links a {
+                display: block;
+                margin: 10px 0;
+            }
+
+            .contact-form-container {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
+<div class="contact-container">
+    <header>
+        <a href="javascript:history.back()" class="btn back" aria-label="Go back to previous page">← Back</a>
+        <div class="header-content">
+            <h1>Contact Us</h1>
+            <p>Get in touch with our team</p>
+        </div>
+    </header>
 
+    <section>
+        <p>We're here to help! If you have any questions about our services, need technical support, or want to explore how AutoHR can benefit your organization, please don't hesitate to contact us using any of the methods below.</p>
+    </section>
+
+    <div class="contact-form-container">
+        <div class="contact-info">
+            <div class="info-item">
+                <h3>Email Us</h3>
+                <p>General Inquiries: <a href="mailto:info@autohr.com">info@autohr.com</a></p>
+                <p>Support: <a href="mailto:support@autohr.com">support@autohr.com</a></p>
+                <p>Sales: <a href="mailto:sales@autohr.com">sales@autohr.com</a></p>
+            </div>
+
+            <div class="info-item">
+                <h3>Call Us</h3>
+                <p>Main Office: (123) 456-7890</p>
+                <p>Support Line: (123) 456-7891</p>
+            </div>
+
+            <div class="info-item">
+                <h3>Visit Us</h3>
+                <p>123 Business Avenue</p>
+                <p>Suite 200</p>
+                <p>San Francisco, CA 94107</p>
+            </div>
+
+            <div class="info-item">
+                <h3>Business Hours</h3>
+                <p>Monday - Friday: 9:00 AM - 6:00 PM (PST)</p>
+                <p>Saturday - Sunday: Closed</p>
+            </div>
+        </div>
+
+        <div class="contact-form">
+            <h2>Send Us a Message</h2>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                    <div class="error-message" id="name-error">Please enter your name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Your Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                    <div class="error-message" id="email-error">Please enter a valid email address</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Subject</label>
+                    <input type="text" id="subject" name="subject" class="form-control" required>
+                    <div class="error-message" id="subject-error">Please enter a subject</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Your Message</label>
+                    <textarea id="message" name="message" class="form-control" required></textarea>
+                    <div class="error-message" id="message-error">Please enter your message</div>
+                </div>
+
+                <button type="submit" class="btn">Send Message</button>
+            </form>
+
+            <div class="success-message" id="success-message">
+                Thank you for your message! We'll get back to you as soon as possible.
+            </div>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <div class="map-placeholder">
+            Map would be displayed here. For implementation, integrate with Google Maps or similar service.
+        </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="about.html">About Us</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2023-2025 AutoHR. All Rights Reserved.</p>
+    </footer>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contactForm = document.getElementById('contactForm');
+        const successMessage = document.getElementById('success-message');
+
+        // Form validation
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            let valid = true;
+
+            // Validate name
+            const name = document.getElementById('name');
+            const nameError = document.getElementById('name-error');
+            if (!name.value.trim()) {
+                nameError.style.display = 'block';
+                valid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            // Validate email
+            const email = document.getElementById('email');
+            const emailError = document.getElementById('email-error');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email.value)) {
+                emailError.style.display = 'block';
+                valid = false;
+            } else {
+                emailError.style.display = 'none';
+            }
+
+            // Validate subject
+            const subject = document.getElementById('subject');
+            const subjectError = document.getElementById('subject-error');
+            if (!subject.value.trim()) {
+                subjectError.style.display = 'block';
+                valid = false;
+            } else {
+                subjectError.style.display = 'none';
+            }
+
+            // Validate message
+            const message = document.getElementById('message');
+            const messageError = document.getElementById('message-error');
+            if (!message.value.trim()) {
+                messageError.style.display = 'block';
+                valid = false;
+            } else {
+                messageError.style.display = 'none';
+            }
+
+            // If form is valid, show success message and reset form
+            if (valid) {
+                // In a real application, you would send the form data to a server here
+                contactForm.reset();
+                successMessage.style.display = 'block';
+
+                // Hide success message after 5 seconds
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
+        });
+
+        // Clear error messages when input changes
+        const inputs = contactForm.querySelectorAll('.form-control');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                const errorId = this.id + '-error';
+                document.getElementById(errorId).style.display = 'none';
+            });
+        });
+    });
+</script>
 </body>
 </html>

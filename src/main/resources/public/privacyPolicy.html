@@ -41,6 +41,13 @@
             border-bottom: 2px solid var(--primary);
             padding-bottom: 15px;
             margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
         }
 
         h1 {
@@ -223,6 +230,45 @@
             cursor: pointer;
             font-size: 1rem;
             margin-top: 10px;
+            text-decoration: none;
+        }
+
+        .btn.back {
+            background: var(--dark-gray);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Navigation Styles */
+        .nav-links {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer Style */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+            color: var(--dark-gray);
+            font-size: 0.9rem;
         }
 
         @media (max-width: 768px) {
@@ -247,14 +293,31 @@
             #cookie-banner p {
                 margin-bottom: 15px;
             }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                margin-bottom: 20px;
+            }
+
+            .nav-links a {
+                display: block;
+                margin: 10px 0;
+            }
         }
     </style>
 </head>
 <body>
 <div class="policy-container">
     <header>
-        <h1>Privacy Policy</h1>
-        <p>Last Updated: <span id="update-date">June 15, 2023</span></p>
+        <a href="javascript:history.back()" class="btn back" aria-label="Go back to previous page">← Back</a>
+        <div class="header-content">
+            <h1>Privacy Policy</h1>
+            <p>Last Updated: <span id="update-date">June 15, 2023</span></p>
+        </div>
     </header>
 
     <!-- Main Privacy Policy Content -->
@@ -370,6 +433,17 @@
             <strong>Phone:</strong> (123) 456-7890
         </p>
     </section>
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+        <a href="terms.html">Terms of Service</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact Us</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2023-2025 AutoHR. All Rights Reserved.</p>
+    </footer>
 </div>
 
 <!-- Cookie Banner -->

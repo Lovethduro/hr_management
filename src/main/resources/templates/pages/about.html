@@ -1,10 +1,453 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | AutoHR</title>
+    <style>
+        :root {
+            --primary: #2a5c8d;
+            --primary-light: #457b9d;
+            --secondary: #e63946;
+            --text: #333333;
+            --text-light: #555555;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+            --white: #ffffff;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 0;
+        }
+
+        .about-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 40px;
+            background: var(--white);
+            box-shadow: var(--box-shadow);
+            border-radius: 8px;
+        }
+
+        header {
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 1.8rem;
+            margin-top: 40px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        h3 {
+            color: var(--primary-light);
+            font-size: 1.4rem;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 10px;
+            text-decoration: none;
+        }
+
+        .btn.back {
+            background: var(--dark-gray);
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        /* About Content Styles */
+        .about-section {
+            margin-bottom: 40px;
+        }
+
+        .company-history {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .history-content {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .history-image {
+            flex: 1;
+            min-width: 300px;
+            background-color: var(--light-gray);
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        .timeline {
+            margin-top: 30px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--primary-light);
+        }
+
+        .timeline-item {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -34px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            border: 2px solid var(--white);
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .team-member {
+            text-align: center;
+        }
+
+        .member-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--light-gray);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-gray);
+            font-style: italic;
+        }
+
+        .member-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .member-position {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        /* Values Section */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .value-card {
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .value-title {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Navigation Styles */
+        .nav-links {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+        }
+
+        .nav-links a {
+            display: inline-block;
+            margin: 0 15px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer Style */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--medium-gray);
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .about-container {
+                padding: 20px;
+                margin: 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .back-btn {
+                margin-bottom: 20px;
+            }
+
+            .nav-links a {
+                display: block;
+                margin: 10px 0;
+            }
+
+            .company-history {
+                flex-direction: column;
+            }
+
+            .team-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
 </head>
 <body>
+<div class="about-container">
+    <header>
+        <a href="javascript:history.back()" class="btn back" aria-label="Go back to previous page">← Back</a>
+        <div class="header-content">
+            <h1>About Us</h1>
+            <p>Transforming HR through automation and innovation</p>
+        </div>
+    </header>
 
+    <section class="about-section">
+        <p>AutoHR is a leading provider of automated human resources solutions designed to streamline HR processes, reduce administrative burden, and empower businesses to focus on what matters most: their people. Our comprehensive suite of tools combines cutting-edge technology with intuitive design to revolutionize how organizations manage their workforce.</p>
+    </section>
+
+    <section class="about-section">
+        <h2>Our Mission</h2>
+        <p>At AutoHR, our mission is to transform human resources management through innovative technology that simplifies complexity, enhances efficiency, and fosters better workplace experiences for both employers and employees.</p>
+    </section>
+
+    <section class="about-section">
+        <h2>Our Vision</h2>
+        <p>We envision a future where HR professionals are freed from administrative tasks to focus on strategic initiatives that drive organizational success and employee satisfaction. We aim to be the global leader in HR automation, setting the standard for excellence and innovation in the industry.</p>
+    </section>
+
+    <section class="about-section">
+        <h2>Company History</h2>
+        <div class="company-history">
+            <div class="history-content">
+                <p>Since our founding in 2018, AutoHR has been committed to revolutionizing the HR landscape. What began as a small team of HR professionals and software engineers has grown into a global company serving thousands of businesses across various industries.</p>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-year">2018</div>
+                        <p>AutoHR was founded in San Francisco by a team of HR professionals and software engineers with a vision to simplify human resources management through technology.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2019</div>
+                        <p>Launched our first product - an automated employee onboarding solution - which quickly gained traction among small to medium-sized businesses.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2020</div>
+                        <p>Expanded our product suite to include performance management, time tracking, and compliance modules in response to the changing work environment during the global pandemic.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2022</div>
+                        <p>Secured Series B funding to accelerate growth and opened offices in New York, London, and Singapore to better serve our growing global client base.</p>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-year">2024</div>
+                        <p>Rolled out our AI-powered HR analytics platform, enabling data-driven decision-making for organizations of all sizes, and surpassed 10,000 active customers worldwide.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="history-image">
+                Company headquarters image would be displayed here.
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>Our Leadership Team</h2>
+        <p>AutoHR is led by a diverse team of experienced professionals who are passionate about transforming the HR landscape through technology and innovation.</p>
+
+        <div class="team-grid">
+            <div class="team-member">
+                <div class="member-photo">Photo</div>
+                <div class="member-name">Sarah Johnson</div>
+                <div class="member-position">Chief Executive Officer</div>
+                <p>With over 20 years of experience in HR technology and business leadership, Sarah provides strategic vision and direction for the company.</p>
+            </div>
+
+            <div class="team-member">
+                <div class="member-photo">Photo</div>
+                <div class="member-name">Michael Chen</div>
+                <div class="member-position">Chief Technology Officer</div>
+                <p>A veteran software engineer, Michael leads our product development teams and ensures our technology remains at the cutting edge of the industry.</p>
+            </div>
+
+            <div class="team-member">
+                <div class="member-photo">Photo</div>
+                <div class="member-name">Elena Rodriguez</div>
+                <div class="member-position">Chief Operations Officer</div>
+                <p>Elena oversees the day-to-day operations and ensures our customer support and implementation teams deliver exceptional service.</p>
+            </div>
+
+            <div class="team-member">
+                <div class="member-photo">Photo</div>
+                <div class="member-name">David Okafor</div>
+                <div class="member-position">Chief Financial Officer</div>
+                <p>With a background in finance and HR tech, David manages our financial strategy and investor relations.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>Our Core Values</h2>
+        <p>Our values guide everything we do at AutoHR, from product development to customer service.</p>
+
+        <div class="values-grid">
+            <div class="value-card">
+                <div class="value-title">Innovation</div>
+                <p>We continuously seek new and better ways to solve HR challenges through creative thinking and cutting-edge technology.</p>
+            </div>
+
+            <div class="value-card">
+                <div class="value-title">Simplicity</div>
+                <p>We believe in making complex HR processes simple, intuitive, and accessible for businesses of all sizes.</p>
+            </div>
+
+            <div class="value-card">
+                <div class="value-title">Integrity</div>
+                <p>We operate with transparency, honesty, and ethical standards in all our business practices and relationships.</p>
+            </div>
+
+            <div class="value-card">
+                <div class="value-title">Customer Success</div>
+                <p>We are committed to the success of our customers and measure our own success by the value we create for them.</p>
+            </div>
+
+            <div class="value-card">
+                <div class="value-title">Diversity & Inclusion</div>
+                <p>We champion diversity of thought, background, and experience, both within our team and through our products.</p>
+            </div>
+
+            <div class="value-card">
+                <div class="value-title">Continuous Improvement</div>
+                <p>We are never satisfied with the status quo and constantly strive to improve our products, processes, and ourselves.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-section">
+        <h2>Join Our Team</h2>
+        <p>We're always looking for talented individuals who are passionate about HR technology and want to make a difference. Check out our <a href="careers.html">Careers page</a> for current opportunities to join our growing team.</p>
+        <a href="careers.html" class="btn">View Open Positions</a>
+    </section>
+
+    <!-- Navigation Links -->
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="contact.html">Contact Us</a>
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2018-2025 AutoHR. All Rights Reserved.</p>
+    </footer>
+</div>
 </body>
 </html>
